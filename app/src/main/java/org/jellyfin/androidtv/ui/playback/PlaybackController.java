@@ -40,6 +40,7 @@ import org.jellyfin.apiclient.model.mediainfo.SubtitleTrackInfo;
 import org.jellyfin.apiclient.model.session.PlayMethod;
 import org.jellyfin.sdk.model.api.BaseItemDto;
 import org.jellyfin.sdk.model.api.BaseItemKind;
+import org.jellyfin.sdk.model.api.ChapterInfo;
 import org.jellyfin.sdk.model.api.LocationType;
 import org.jellyfin.sdk.model.api.MediaSourceInfo;
 import org.jellyfin.sdk.model.api.MediaStream;
@@ -1328,6 +1329,64 @@ public class PlaybackController implements PlaybackControllerNotifiable {
     public void setZoom(int mode) {
         if (hasInitializedVideoManager())
             mVideoManager.setZoom(mode);
+    }
+
+    public void nextChapter() {
+        int currentChapterIndex = getCurrentChapterIndex();
+        List<ChapterInfo> chapters = getCurrentlyPlayingItem().getChapters();
+        if (currentChapterIndex == -1 || chapters == null || chapters.isEmpty()) {
+            return;
+        }
+
+        // Current chapter is the last one, get to end of video
+        if (currentChapterIndex == chapters.size() - 1) {
+            seek(getDuration());
+            return;
+        }
+
+        // Chapter is not the last one, get to next chapter
+        seek(chapters.get(currentChapterIndex + 1).getStartPositionTicks() / 10000);
+    }
+
+    public void previousChapter() {
+        int currentChapterIndex = getCurrentChapterIndex();
+        if (currentChapterIndex == -1) {
+            return;
+        }
+
+        // Current chapter is the first one, get back to start of video
+        if (currentChapterIndex == 0) {
+            seek(0);
+            return;
+        }
+
+        // Chapter is not the first one, get to previous chapter
+        List<ChapterInfo> chapters = getCurrentlyPlayingItem().getChapters();
+        if (chapters == null || chapters.isEmpty()) {
+            return;
+        }
+
+        seek(chapters.get(currentChapterIndex - 1).getStartPositionTicks() / 10000);
+    }
+
+    private int getCurrentChapterIndex() {
+        List<ChapterInfo> chapters = getCurrentlyPlayingItem().getChapters();
+        if (chapters == null || chapters.isEmpty()) {
+            return -1;
+        }
+
+        long currentPosition = getCurrentPosition() * 10000;
+
+        int idx = 0;
+        for (ChapterInfo chapter : chapters) {
+            if (chapter.getStartPositionTicks() > currentPosition) {
+                return idx - 1;
+            }
+
+            idx++;
+        }
+
+        return idx - 1;
     }
 
     /**
