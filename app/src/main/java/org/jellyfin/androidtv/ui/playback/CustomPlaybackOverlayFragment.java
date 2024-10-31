@@ -453,10 +453,11 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
                 playbackControllerContainer.getValue().getPlaybackController().playPause();
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || keyCode == KeyEvent.KEYCODE_BUTTON_R1 || keyCode == KeyEvent.KEYCODE_BUTTON_R2) {
-                playbackControllerContainer.getValue().getPlaybackController().fastForward();
+                Timber.d("Fast forward pressed");
+                playbackControllerContainer.getValue().getPlaybackController().nextChapter();
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND || keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_BUTTON_L2) {
-                playbackControllerContainer.getValue().getPlaybackController().rewind();
+                playbackControllerContainer.getValue().getPlaybackController().previousChapter();
                 return true;
             }
         }
@@ -559,13 +560,13 @@ public class CustomPlaybackOverlayFragment extends Fragment implements LiveTvGui
                     // Control fast forward and rewind if overlay hidden and not showing live TV
                     if (!playbackControllerContainer.getValue().getPlaybackController().isLiveTv()) {
                         if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD || keyCode == KeyEvent.KEYCODE_BUTTON_R1 || keyCode == KeyEvent.KEYCODE_BUTTON_R2) {
-                            playbackControllerContainer.getValue().getPlaybackController().fastForward();
+                            playbackControllerContainer.getValue().getPlaybackController().nextChapter();
                             setFadingEnabled(true);
                             return true;
                         }
 
                         if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND || keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_BUTTON_L2) {
-                            playbackControllerContainer.getValue().getPlaybackController().rewind();
+                            playbackControllerContainer.getValue().getPlaybackController().previousChapter();
                             setFadingEnabled(true);
                             return true;
                         }
